@@ -75,6 +75,10 @@
                     <span class="type-label-lg">Submissions</span>
                 </router-link>
                 <div class="nav__actions">
+                    <select v-model="store.listType" class="nav__dropdown" id="listType">
+                        <option value="demon" selected>Demon List</option>
+                        <option value="challenge">Challenge List</option>
+                    </select>
                     <button
                         class="nav__icon"
                         @click.prevent="store.toggleDark()"

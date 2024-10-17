@@ -71,3 +71,30 @@ textarea {
 .submit-record form button:hover {
     background-color: #404040; /* Darker shade on hover */
 }
+
+.autocomplete-list {
+    position: absolute; /* Position it absolutely */
+    z-index: 1000; /* Ensure it appears above other elements */
+    background-color: #2b2a33; /* Background color for visibility */
+    border: 1px solid #2b2a33; /* Optional border */
+    max-height: 200px; /* Limit height */
+    overflow-y: auto; /* Scroll if too many items */
+    border-radius: 20px;
+    padding: 10px;
+    width: auto;
+    max-width: 350px;
+    min-width: 235px;
+    box-shadow: 10px 10px 10pt #1c1b1f;
+    margin-top: 144px;
+}
+
+.autocomplete-item {
+    cursor: pointer;
+    font-family: "Lexend Deca", sans-serif;
+    border: 3px solid #3e3d48;
+    margin-top: 3px;
+    border-radius: 16px;
+    background: #3d3d48;
+    padding-left: 10px;
+    padding-right: 10px;
+}

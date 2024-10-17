@@ -151,32 +151,39 @@ export default {
     },
   },
   async mounted() {
-    // Hide loading spinner
-    this.list = await fetchList();
-    this.editors = await fetchEditors();
-
-    // Error handling
-    if (!this.list) {
-      this.errors = [
-        "Failed to load list. Retry in a few minutes or notify list staff.",
-      ];
-    } else {
-      this.errors.push(
-        ...this.list
-          .filter(([_, err]) => err)
-          .map(([_, err]) => {
-            return `Failed to load level. (${err}.json)`;
-          }),
-      );
-      if (!this.editors) {
-        this.errors.push("Failed to load list editors.");
-      }
-    }
-
-    this.loading = false;
+    store.listContext = this;
+    await reset();
   },
   methods: {
     embed,
     score,
   },
 };
+
+export async function reset() {
+    store.listContext.loading = true;
+
+    // Hide loading spinner
+    store.listContext.list = await fetchList();
+    store.listContext.editors = await fetchEditors();
+  
+    // Error handling
+    if (!store.listContext.list) {
+      store.listContext.errors = [
+        "Failed to load list. Retry in a few minutes or notify list staff.",
+      ];
+    } else {
+      store.listContext.errors.push(
+          ...store.listContext.list
+          .filter(([_, err]) => err)
+          .map(([_, err]) => {
+            return `Failed to load level. (${err}.json)`;
+          }),
+      );
+      if (!store.listContext.editors) {
+        store.listContext.errors.push("Failed to load list editors.");
+      }
+    }
+  
+    store.listContext.loading = false;
+  }

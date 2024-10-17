@@ -59,3 +59,12 @@
 .nav .nav__actions .nav__cta:hover:not(:active) {
     transform: translateY(-2px);
 }
+.nav .nav__dropdown {
+    border: 0;
+    background: 0;
+}
+
+.nav .nav__dropdown option {
+    color: black;
+    font-family: "Lexend Deca", sans-serif;
+}
