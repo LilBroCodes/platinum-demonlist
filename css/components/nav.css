@@ -60,6 +60,7 @@
     transform: translateY(-2px);
 }
 .nav .nav__dropdown {
+    color: white;
     border: 0;
     background: 0;
 }

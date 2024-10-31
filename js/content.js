@@ -4,7 +4,6 @@ import { store } from "./main.js";
 export async function fetchList() {
   const listResult = await fetch(`https://platinum.141412.xyz/getList.php?type=${store.listType}`);
   try {
-    console.log(listResult);
     const list = await listResult.json();
     return await Promise.all(
       list.map(async (path, rank) => {

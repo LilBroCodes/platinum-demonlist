@@ -1,10 +1,15 @@
 import routes from './routes.js';
-import { reset } from './pages/List.js';
-
+import { resetList } from './pages/List.js';
+import { resetLeaderboard } from './pages/Leaderboard.js';
+import { resetRoulette } from './pages/Roulette.js';
+import { resetSubmissions } from './pages/Submissions.js';
 export const store = Vue.reactive({
+    submissionsContext: null,
+    leaderboardContext: null,
+    rouletteContext: null,
     listContext: null,
     dark: JSON.parse(localStorage.getItem('dark')) || false,
-    listType: 'demon', // Initialize listType to 'demon'
+    listType: (localStorage.getItem("listType") != "") ? localStorage.getItem("listType") : "demon", // Initialize listType to 'demon'
     toggleDark() {
         this.dark = !this.dark;
         localStorage.setItem('dark', JSON.stringify(this.dark));
@@ -24,6 +29,9 @@ app.use(router);
 app.mount('#app');
 
 document.getElementById('listType').addEventListener('change', () => {
-    // Pass the store as context to reset
-    reset(); // Updated line
+    localStorage.setItem("listType", store.listType);
+    resetList(); // Updated line
+    resetLeaderboard();
+    resetRoulette();
+    resetSubmissions();
 });

@@ -4,7 +4,8 @@ export default {
    template: `
    <main class="submit-record">
       <h1>Submit Level or Record</h1>
-      <h2 style="font-style: italic; color: #535353; font-weight: lighter;">Dropdown in the top-right will be used to select list</h2>
+      <h2 style="font-style: italic; color: #535353; font-weight: 200;">Dropdown in the top-right will be used to select list</h2>
+      <h2 style="font-style: italic; color: #535353; font-weight: 100;">Currently submitting to {{ store.listType == "challenge" ? "challenge list" : "demonlist" }}</h2>
       <form @submit.prevent="submitSubmission">
          <label for="type">Submission Type:</label>
          <select v-model="type" id="type" required>
