@@ -28,6 +28,10 @@ app.use(router);
 
 app.mount('#app');
 
+if (localStorage.getItem("listType") == "") {
+    localStorage.setItem("listType", "demon");
+}
+
 document.getElementById('listType').addEventListener('change', () => {
     localStorage.setItem("listType", store.listType);
     resetList(); // Updated line
