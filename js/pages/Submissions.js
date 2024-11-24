@@ -68,8 +68,22 @@ export default {
                      allowfullscreen
                   ></iframe>
                </div>
-               <button class="accept-button" @click="acceptSubmission(selectedSubmission)">Accept</button>
+               <button class="accept-button" @click="showPlacementPopup(selectedSubmission)">Accept</button>
                <button class="deny-button" @click="denySubmission(selectedSubmission)">Deny</button>
+            </div>
+         </div>
+         <div class="placement-popup-overlay" v-if="placementPopupVisible">
+            <div class="popup-content">
+               <h2>Select Placement for {{ selectedSubmission.name }}</h2>
+               <h2 style="font-style: italic; color: #535353; font-weight: 100; font-size: 15pt; text-align: center;">Level will be placed above the selected level</h2>          
+               <div class="level-list"><ul class="font">
+                  <li v-for="(level, index) in levelList" :key="index" @click="selectPlacement(index)" class="listElement" :class="{ selected: isSelectedPlacement(index)}">
+                     {{ level }}
+                  </li>
+                  <li @click="selectPlacement(levelList.length)" class="listElement" class="{ selected: isSelectedPlacement(index)}">Place at end</li>
+               </ul></div>
+               <button class="accept-button" @click="confirmPlacement" :disabled="selectedPlacementIndex === null">Confirm</button>
+               <button class="close-button" @click="closePlacementPopup">Close</button>
             </div>
          </div>
       </div>
@@ -85,7 +99,10 @@ export default {
          filter: 'all',
          selectedTab: 'records',
          popupVisible: false,
+         placementPopupVisible: false,
          selectedSubmission: null,
+         levelList: [],
+         selectedPlacementIndex: null,
       };
    },
    computed: {
@@ -185,6 +202,15 @@ export default {
             console.error("Failed to fetch submissions:", error);
          }
       },
+      async fetchLevelList() {
+         try {
+            const response = await fetch(`https://platinum.141412.xyz/getList.php?type=${store.listType}`);
+            const data = await response.json();
+            this.levelList = data;
+         } catch (error) {
+            console.error("Failed to fetch level list:", error);
+         }
+      },
       async acceptSubmission(submission) {
          let type = submission.type;
          let id = type === "record" ? submission.id : submission.submissionId;
@@ -203,10 +229,10 @@ export default {
                      type: type,
                      id: id,
                      state: 1,
+                     placementIndex: this.selectedPlacementIndex,
                   }),
                },
             );
-            console.log("Accepted:", submission);
             document.location.reload();
          } catch (error) {
             console.error("Failed to accept submission:", error);
@@ -290,6 +316,33 @@ export default {
             mainElement.classList.add('blur'); // Add blur class when opening popup
          }
       },
+      showPlacementPopup(submission) {
+         this.popupVisible = false;
+         this.selectedSubmission = submission;
+         this.placementPopupVisible = true;
+         this.fetchLevelList();
+      },
+      closePlacementPopup() {
+         this.placementPopupVisible = false;
+         const mainElement = document.querySelector('main');
+         if (mainElement) {
+            mainElement.classList.remove('blur'); // Remove blur class when closing popup
+         }
+         this.$emit('close');
+      },
+      selectPlacement(index) {
+         this.selectedPlacementIndex = index;
+      },
+      confirmPlacement() {
+         this.acceptSubmission(this.selectedSubmission);
+         this.closePlacementPopup();
+      },
+      isSelectedPlacement(index) {
+         return this.selectedPlacementIndex == index;
+      },
+      confirmDisabled() {
+         return !this.selectedPlacementIndex != null;
+      }
    },
    async created() {
       store.submissionsContext = this;

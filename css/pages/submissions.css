@@ -1,10 +1,62 @@
 /* Default light theme styles */
 
+.font {
+    font-family: 'Lexend deca';
+}
+
 main.blur {
     filter: blur(5px);
     transition: filter 0.3s ease;
 }
 
+.accept-button:disabled {
+    background-color: gray;
+    cursor: default;
+    opacity: 0.3;
+}
+
+.accept-button:disabled:hover {
+    opacity: 0.3;
+}
+
+.dark.accept-button:disabled:hover {
+    opacity: 0.3;
+}
+
+.dark.accept-button:disabled {
+    background-color: gray;
+    cursor: default;
+    opacity: 0.3;
+
+}
+
+.level-list {
+    max-height: 316px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    padding: 10px;
+    margin: 10px;
+}
+
+.listElement {
+    width: auto;
+    font-weight: 100;
+    transition: all 0.5s cubic-bezier(.08,.82,.17,1);
+    cursor: pointer;
+    background-color: var(--color-background);
+    border-radius: 15px;
+    padding: 8px;
+    margin: 2px;
+    text-align: center;
+}
+
+.listElement:hover {
+    background-color: var(--color-background-hover);
+}
+
+.listElement.selected {
+    background-color: var(--color-primary);
+}
 
 .accept-button,
 .deny-button {
@@ -20,6 +72,7 @@ main.blur {
 }
 
 .accept-button {
+    transition: all 0.5s cubic-bezier(.08,.82,.17,1);
     background-color: green;
     position: absolute;
     bottom: 20px;
@@ -62,6 +115,28 @@ main.blur {
     height: auto;
     color: black;
 }
+
+.placement-popup-overlay {
+    z-index: 1000;
+    position: fixed;
+    /* In the center of the screen */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    border-radius: 25px;
+    padding: 20px;
+    width: 500px;
+    min-height: 500px;
+    height: auto;
+    color: black;
+}
+
+.dark .placement-popup-overlay {
+    background-color: #313133;
+    color: #fff;
+}
+
 
 .dark .popup-overlay {
     background-color: #313133;
