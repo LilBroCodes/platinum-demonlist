@@ -62,11 +62,7 @@ main.blur {
 }
 
 .listElement.selected {
-    background-color: #cacaca;
-}
-
-.listElement.selected.dark {
-    background-color: var(--color-primary);
+    background-color: #999;
 }
 
 .accept-button,
