@@ -29,11 +29,17 @@ export default {
          <div v-else></div>
          <main class="submissions-page" v-else>
             <button @click="logout" class="logout-button">Logout</button>
+            <select v-model="filter" class="filter-select">
+               <option value="0">Unread</option>
+               <option value="1">Accepted</option>
+               <option value="2">Denied</option>
+            </select>
             <div class="tab-switcher">
                <h2 class="tab" :class="{ selected: isSelected('records') }" @click="selectTab('records')">Records</h2>
                <h2 class="tab" :class="{ selected: isSelected('levels') }" @click="selectTab('levels')">Levels</h2>
             </div>
             <div class="submissions-list">
+               <h1 v-if="this.sortedSubmissions.length === 0" class="no-submissions">No submissions found.</h1>
                <div class="submission-card" v-for="submission in recordSubmissions" :key="submission.id" v-if="selectedTab === 'records'" @click="selectSubmission(submission)">
                   <h2>{{ submission.playerName }}</h2>
                   <p class="submission-date">{{ submission.submissionDate }}</p>
@@ -68,7 +74,8 @@ export default {
                      allowfullscreen
                   ></iframe>
                </div>
-               <button class="accept-button" @click="showPlacementPopup(selectedSubmission)">Accept</button>
+               <button v-if="selectedSubmission.type === 'level'" class="accept-button" @click="showPlacementPopup(selectedSubmission)">Accept</button>
+               <button v-if="selectedSubmission.type === 'record'" class="accept-button" @click="acceptSubmission(selectedSubmission)">Accept</button>
                <button class="deny-button" @click="denySubmission(selectedSubmission)">Deny</button>
             </div>
          </div>
@@ -80,7 +87,7 @@ export default {
                   <li v-for="(level, index) in levelList" :key="index" @click="selectPlacement(index)" class="listElement" :class="{ selected: isSelectedPlacement(index)}">
                      {{ level }}
                   </li>
-                  <li @click="selectPlacement(levelList.length)" class="listElement" class="{ selected: isSelectedPlacement(index)}">Place at end</li>
+                  <li @click="selectPlacement(levelList.length)" class="listElement" :class="{ selected: this.selectedPlacementIndex === levelList.length}">Place at end</li>
                </ul></div>
                <button class="accept-button" @click="confirmPlacement" :disabled="selectedPlacementIndex === null">Confirm</button>
                <button class="close-button" @click="closePlacementPopup">Close</button>
@@ -103,21 +110,22 @@ export default {
          selectedSubmission: null,
          levelList: [],
          selectedPlacementIndex: null,
+         filter: 0,
       };
    },
    computed: {
       sortedSubmissions() {
          let ret = this.submissions
-            .filter((submission) => submission.state !== 1)
+            .filter((submission) => submission.state == this.filter)
             .slice()
             .sort((a, b) => a.state - b.state);
          return ret;
       },
       recordSubmissions() {
-         return this.submissions.filter((submission) => submission.type === "record" && submission.state !== 1);
+         return this.submissions.filter((submission) => submission.type === "record" && submission.state == this.filter);
       },
       levelSubmissions() {
-         return this.submissions.filter((submission) => submission.type === "level" && submission.state !== 1);
+         return this.submissions.filter((submission) => submission.type === "level" && submission.state == this.filter);
       },
    },
    methods: {
@@ -176,7 +184,7 @@ export default {
             if (data.success) {
                this.loggedIn = true;
                this.errorMessage = "";
-               localStorage.setItem('sessionCode', data.sessionCode); // Save session code to localStorage
+               localStorage.setItem('sessionCode', data.sessionCode);
                await this.fetchSubmissions();
             } else {
                this.loggedIn = false;
@@ -216,7 +224,7 @@ export default {
          let id = type === "record" ? submission.id : submission.submissionId;
          let name = type === "record" ? submission.levelName : submission.name;
          try {
-            const response = await fetch(
+            await fetch(
                "https://platinum.141412.xyz/updateSubmission.php",
                {
                   method: "POST",
@@ -224,6 +232,7 @@ export default {
                      "Content-Type": "application/json",
                   },
                   body: JSON.stringify({
+                     sessionCode: localStorage.getItem("sessionCode"),
                      raw: submission,
                      name: name,
                      type: type,
@@ -243,7 +252,7 @@ export default {
          let id = type === "record" ? submission.id : submission.submissionId;
          let name = type === "record" ? submission.levelName : submission.name;
          try {
-            const response = await fetch(
+            await fetch(
                "https://platinum.141412.xyz/updateSubmission.php",
                {
                   method: "POST",
@@ -251,6 +260,7 @@ export default {
                      "Content-Type": "application/json",
                   },
                   body: JSON.stringify({
+                     sessionCode: localStorage.getItem("sessionCode"),
                      raw: submission,
                      name: name,
                      type: type,
@@ -260,14 +270,14 @@ export default {
                },
             );
             console.log("Denied:", submission);
-            document.location.reload();
+            // document.location.reload();
          } catch (error) {
             console.error("Failed to deny submission:", error);
          }
       },
       async logout() {
          try {
-            const response = await fetch(
+            await fetch(
                `https://platinum.141412.xyz/demonlistLogOut.php?session_code=${localStorage.getItem("sessionCode")}`,
             );
             this.loggedIn = false;

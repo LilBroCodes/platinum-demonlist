@@ -1,5 +1,12 @@
 /* Default light theme styles */
 
+.no-submissions {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-top: 100px;
+    width: 100%;
+}
+
 .font {
     font-family: 'Lexend deca';
 }
@@ -55,6 +62,10 @@ main.blur {
 }
 
 .listElement.selected {
+    background-color: #cacaca;
+}
+
+.listElement.selected.dark {
     background-color: var(--color-primary);
 }
 
@@ -103,7 +114,6 @@ main.blur {
 .popup-overlay {
     z-index: 1000;
     position: fixed;
-    /* In the center of the screen */
     top: 55%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -119,7 +129,6 @@ main.blur {
 .placement-popup-overlay {
     z-index: 1000;
     position: fixed;
-    /* In the center of the screen */
     top: 55%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -127,7 +136,7 @@ main.blur {
     border-radius: 25px;
     padding: 20px;
     width: 500px;
-    min-height: 500px;
+    min-height: 532px;
     height: auto;
     color: black;
 }
@@ -299,6 +308,20 @@ main.blur {
 }
 
 .logout-button.blur {
+    top: 12px;
+}
+
+.filter-select {
+    position: absolute;
+    top: 75px;
+    left: 10px;
+    border: 0;
+    padding: 10px;
+    border-radius: 10px;
+    font-family: "Lexend Deca", sans-serif;
+}
+
+.filter-select.blur {
     top: 12px;
 }
 

@@ -21,7 +21,7 @@ export default {
          <Spinner></Spinner>
       </main>
       <main v-else class="page-list">
-         <div class="list-container">
+         <div class="list-container blur-deez-nuts">
             <table class="list" v-if="list">
                <tr v-for="([level, err], i) in list">
                   <td class="rank">
@@ -36,9 +36,10 @@ export default {
                </tr>
             </table>
          </div>
-         <div class="level-container">
+         <div class="level-container blur-deez-nuts">
             <div class="level" v-if="level">
                <h1>{{ level.name }}</h1>
+               <button v-if="this.loggedIn" class="move-button font" @Click="showPlacementPopup(level)">Move</button>
                <LevelAuthors :creators="level.creators" :verifier="level.verifier"></LevelAuthors>
                <iframe class="video" id="videoframe" :src="video" frameborder="0"></iframe>
                <ul class="stats">
@@ -80,7 +81,7 @@ export default {
                <p>(ノಠ益ಠ)ノ彡┻━┻</p>
             </div>
          </div>
-         <div class="meta-container">
+         <div class="meta-container blur-deez-nuts">
             <div class="meta">
                <div class="errors" v-show="errors.length > 0">
                   <p class="error" v-for="error of errors">{{ error }}</p>
@@ -125,6 +126,20 @@ export default {
                </p>
             </div>
          </div>
+         <div class="placement-popup-overlay" v-if="placementPopupVisible">
+         <div class="popup-content">
+            <h2>Select Placement for {{ selectedSubmission.name }}</h2>
+            <h2 style="font-style: italic; color: #535353; font-weight: 100; font-size: 15pt; text-align: center;">Level will be placed above the selected level</h2>          
+            <div class="level-list"><ul class="font">
+               <li v-for="(level, index) in levelList" :key="index" @click="selectPlacement(index)" class="listElement" :class="{ selected: isSelectedPlacement(index)}">
+                  {{ level }}
+               </li>
+               <li @click="selectPlacement(levelList.length)" class="listElement" :class="{ selected: this.selectedPlacementIndex === levelList.length}">Place at end</li>
+            </ul></div>
+            <button class="accept-button" @click="confirmPlacement(level)" :disabled="selectedPlacementIndex === null">Confirm</button>
+            <button class="close-button" @click="closePlacementPopup">Close</button>
+         </div>
+      </div>
       </main>
    `,
    data: () => ({
@@ -135,6 +150,9 @@ export default {
       errors: [],
       roleIconMap,
       store,
+      placementPopupVisible: false,
+      selectedPlacementIndex: null,
+      levelList: [],
    }),
    computed: {
       level() {
@@ -149,12 +167,91 @@ export default {
             this.toggledShowcase ? this.level.showcase : this.level.verification,
          );
       },
+      loggedIn() {
+         return localStorage.getItem('sessionCode') != null;
+      },
    },
    async mounted() {
       store.listContext = this;
       await resetList();
    },
    methods: {
+      showPlacementPopup(submission) {
+         const mainElements = document.getElementsByClassName('blur-deez-nuts');
+         for (const mainElement of mainElements) {
+            mainElement.classList.add('blur'); // Add blur class when opening popup
+         }
+         this.selectedSubmission = submission;
+         this.placementPopupVisible = true;
+         this.fetchLevelList();
+      },
+      closePlacementPopup() {
+         this.placementPopupVisible = false;
+         const mainElements = document.getElementsByClassName('blur-deez-nuts');
+         for (const mainElement of mainElements) {
+            mainElement.classList.remove('blur'); // Remove blur class when closing popup
+         }
+         this.$emit('close');
+      },
+      selectPlacement(index) {
+         this.selectedPlacementIndex = index;
+      },
+      async getSubmissionid(level_id) {
+         try {
+            const response = await fetch(
+               `https://platinum.141412.xyz/getSubmissionId.php?id=${level_id}`,
+               {
+                  method: "GET",
+                  headers: {
+                     "Content-Type": "application/json",
+                  }                     
+               },
+            );
+            const data = response.json();
+            return data.id;
+         } catch (error) {
+            console.error("Failed to get submission id:", error);
+         }
+      },
+      async confirmPlacement(submission) {
+         this.closePlacementPopup();
+         const id = await this.getSubmissionid(submission.id);
+         try {
+            await fetch(
+               "https://platinum.141412.xyz/updateSubmission.php",
+               {
+                  method: "POST",
+                  headers: {
+                     "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                     sessionCode: localStorage.getItem("sessionCode"),
+                     raw: submission,
+                     name: submission.name,
+                     type: "level",
+                     id: id,
+                     state: 1,
+                     placementIndex: this.selectedPlacementIndex,
+                  }),
+               },
+            );
+            document.location.reload();
+         } catch (error) {
+            console.error("Failed to accept submission:", error);
+         }
+      },
+      isSelectedPlacement(index) {
+         return this.selectedPlacementIndex == index;
+      },
+      async fetchLevelList() {
+         try {
+            const response = await fetch(`https://platinum.141412.xyz/getList.php?type=${store.listType}`);
+            const data = await response.json();
+            this.levelList = data;
+         } catch (error) {
+            console.error("Failed to fetch level list:", error);
+         }
+      },
       embed,
       score,
    },
