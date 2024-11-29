@@ -207,8 +207,8 @@ export default {
                   }                     
                },
             );
-            const data = response.json();
-            return data.id;
+            const data = await response.json();
+            return data.submissionId;
          } catch (error) {
             console.error("Failed to get submission id:", error);
          }
@@ -232,6 +232,7 @@ export default {
                      id: id,
                      state: 1,
                      placementIndex: this.selectedPlacementIndex,
+                     move: true
                   }),
                },
             );
